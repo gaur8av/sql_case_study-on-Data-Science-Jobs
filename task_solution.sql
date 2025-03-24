@@ -246,6 +246,7 @@ ORDER BY avg_salary_increase_percent DESC;
 */
 
 
+
 /*
 	Task 10 : Picture yourself as a data architect responsible for database management. Companies in US and AU(Australia) decided to
 	create a hybrid model for employees they decided that employees earning salaries exceeding $90000 USD, will be given work from home.
@@ -452,3 +453,42 @@ FROM
     salary_growth
 ORDER BY 
     salary_growth_percent DESC;
+
+
+/*
+	Task 16 : You are a researcher and you have been assigned the task to Find the
+	year with the highest average salary for each job title.
+*/
+select * from salaries;
+
+select job_title, work_year , avg_salary from(
+	select job_title , work_year , Round(avg(salary_in_usd),2) as avg_salary,
+	row_number() over(partition by job_title order by Round(avg(salary_in_usd),2) desc ) as rank
+	from salaries
+	group by job_title , work_year
+	order by job_title asc , work_year asc
+) t
+where rank = 1;
+
+/*
+
+	Task 17 : You have been hired by a market research agency where you been assigned the task to show the percentage of different
+	employment type (full time, part time) in Different job roles, in the format where each row will be job title, each column 
+	will be type of employment type and cell value for that row and column will show the % value.
+
+*/
+
+SELECT
+  job_title,
+  ROUND(
+    100.0 * SUM(CASE WHEN employment_type = 'FT' THEN 1 ELSE 0 END) / COUNT(*), 
+    2
+  ) AS full_time_percentage,
+  ROUND(
+    100.0 * SUM(CASE WHEN employment_type = 'PT' THEN 1 ELSE 0 END) / COUNT(*), 
+    2
+  ) AS part_time_percentage
+FROM salaries
+GROUP BY job_title
+ORDER BY job_title;
+
